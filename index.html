@@ -15,7 +15,6 @@
       --text: #1e293b;
       --text-muted: #94a3b8;
       --border: #e2e8f0;
-      --today-border: #4f46e5;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -33,13 +32,69 @@
       padding: 20px 16px 40px;
     }
 
+    /* ── Header ── */
+    .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      position: relative;
+    }
+
     .app-title {
-      text-align: center;
       font-size: 1.4rem;
       font-weight: 700;
       color: var(--primary);
-      margin-bottom: 20px;
       letter-spacing: -0.02em;
+    }
+
+    .sync-badge {
+      font-size: 0.72rem;
+      padding: 3px 8px;
+      border-radius: 100px;
+      font-weight: 500;
+      transition: opacity 0.3s;
+    }
+
+    .sync-badge.saving  { background: #fef9c3; color: #854d0e; }
+    .sync-badge.saved   { background: #dcfce7; color: #166534; }
+    .sync-badge.offline { background: #fee2e2; color: #991b1b; }
+    .sync-badge.hidden  { opacity: 0; pointer-events: none; }
+
+    /* ── Loading overlay ── */
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      z-index: 100;
+      transition: opacity 0.3s;
+    }
+
+    .loading-overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .spinner {
+      width: 36px;
+      height: 36px;
+      border: 3px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-text {
+      font-size: 0.9rem;
+      color: var(--text-muted);
     }
 
     /* ── Tabs ── */
@@ -95,11 +150,7 @@
       min-width: 0;
     }
 
-    .edit-hint {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      flex-shrink: 0;
-    }
+    .edit-hint { font-size: 0.8rem; color: var(--text-muted); flex-shrink: 0; }
 
     /* ── Calendar navigation ── */
     .cal-nav {
@@ -126,10 +177,7 @@
 
     .cal-nav-btn:active { background: var(--bg); }
 
-    .cal-title {
-      font-weight: 700;
-      font-size: 1.05rem;
-    }
+    .cal-title { font-weight: 700; font-size: 1.05rem; }
 
     /* ── Calendar grid ── */
     .cal-grid {
@@ -146,8 +194,8 @@
       padding: 4px 0;
     }
 
-    .cal-day-name:nth-child(1) { color: #ef4444; } /* 日 */
-    .cal-day-name:nth-child(7) { color: #3b82f6; } /* 土 */
+    .cal-day-name:nth-child(1) { color: #ef4444; }
+    .cal-day-name:nth-child(7) { color: #3b82f6; }
 
     .cal-day {
       aspect-ratio: 1;
@@ -161,12 +209,9 @@
       border: 2px solid transparent;
       user-select: none;
       -webkit-tap-highlight-color: transparent;
-      position: relative;
     }
 
-    .cal-day:not(.empty):active {
-      transform: scale(0.88);
-    }
+    .cal-day:not(.empty):active { transform: scale(0.88); }
 
     .cal-day.done {
       background: var(--success);
@@ -177,22 +222,18 @@
     .cal-day.done:hover { background: var(--success-dark); }
 
     .cal-day.today:not(.done) {
-      border-color: var(--today-border);
+      border-color: var(--primary);
       font-weight: 700;
       color: var(--primary);
     }
 
     .cal-day.empty { cursor: default; }
 
-    .cal-day:nth-child(7n+1):not(.empty):not(.done) { color: #ef4444; } /* 日曜 */
-    .cal-day:nth-child(7n):not(.empty):not(.done)   { color: #3b82f6; } /* 土曜 */
+    .cal-day:nth-child(7n+1):not(.empty):not(.done) { color: #ef4444; }
+    .cal-day:nth-child(7n):not(.empty):not(.done)   { color: #3b82f6; }
 
     /* ── Stats ── */
-    .stats {
-      display: flex;
-      gap: 10px;
-      margin-top: 18px;
-    }
+    .stats { display: flex; gap: 10px; margin-top: 18px; }
 
     .stat {
       flex: 1;
@@ -210,11 +251,7 @@
       line-height: 1;
     }
 
-    .stat-label {
-      font-size: 0.7rem;
-      color: var(--text-muted);
-      margin-top: 5px;
-    }
+    .stat-label { font-size: 0.7rem; color: var(--text-muted); margin-top: 5px; }
 
     /* ── Export button ── */
     .btn-export {
@@ -233,7 +270,7 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    .btn-export:hover { background: var(--bg); }
+    .btn-export:hover  { background: var(--bg); }
     .btn-export:active { background: var(--border); }
 
     /* ── Toast ── */
@@ -253,15 +290,22 @@
       white-space: nowrap;
     }
 
-    .toast.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   </style>
 </head>
 <body>
+
+  <!-- Loading overlay -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <div class="loading-text">データを読み込み中...</div>
+  </div>
+
   <div class="app">
-    <div class="app-title">習慣トラッカー</div>
+    <div class="app-header">
+      <div class="app-title">習慣トラッカー</div>
+      <div class="sync-badge hidden" id="syncBadge"></div>
+    </div>
 
     <div class="tabs" id="tabs"></div>
 
@@ -286,18 +330,19 @@
   <div class="toast" id="toast"></div>
 
   <script>
+    // ── Config ─────────────────────────────────────────────
+    const API_URL     = '/api/data';
+    const STORAGE_KEY = 'habit-tracker-v1';  // localStorage fallback / cache
+
     // ── State ──────────────────────────────────────────────
-    const STORAGE_KEY = 'habit-tracker-v1';
-    let state = loadState();
+    let state        = null;
     let currentHabit = 0;
     let currentYear  = new Date().getFullYear();
     let currentMonth = new Date().getMonth();
+    let saveTimer    = null;
+    let syncBadgeTimer = null;
 
-    function loadState() {
-      try {
-        const s = localStorage.getItem(STORAGE_KEY);
-        if (s) return JSON.parse(s);
-      } catch (_) {}
+    function defaultState() {
       return {
         habits: [
           { name: '習慣1', records: {} },
@@ -307,12 +352,65 @@
       };
     }
 
-    function saveState() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    // ── Load (API → localStorage fallback) ─────────────────
+    async function loadState() {
+      try {
+        const res = await fetch(API_URL, { cache: 'no-store' });
+        if (res.ok) {
+          const data = await res.json();
+          if (data) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); // update cache
+            return data;
+          }
+        }
+      } catch (_) {}
+
+      // fallback: localStorage cache
+      try {
+        const cached = localStorage.getItem(STORAGE_KEY);
+        if (cached) {
+          showSyncBadge('offline', 'オフライン (ローカルキャッシュ)');
+          return JSON.parse(cached);
+        }
+      } catch (_) {}
+
+      return defaultState();
     }
 
-    function dateKey(y, m, d) {
-      return `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    // ── Save (debounced, API + localStorage cache) ──────────
+    function scheduleSave() {
+      clearTimeout(saveTimer);
+      showSyncBadge('saving', '同期中...');
+      saveTimer = setTimeout(doSave, 500);
+    }
+
+    async function doSave() {
+      // always update local cache immediately
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(state),
+        });
+        if (res.ok) {
+          showSyncBadge('saved', '保存済み ✓', 2000);
+          return;
+        }
+      } catch (_) {}
+
+      showSyncBadge('offline', 'ローカル保存 (オフライン)');
+    }
+
+    function showSyncBadge(type, text, autoHideMs) {
+      const el = document.getElementById('syncBadge');
+      el.textContent = text;
+      el.className = `sync-badge ${type}`;
+      clearTimeout(syncBadgeTimer);
+      if (autoHideMs) {
+        syncBadgeTimer = setTimeout(() => el.classList.add('hidden'), autoHideMs);
+      }
     }
 
     // ── Render ─────────────────────────────────────────────
@@ -344,8 +442,6 @@
       const dayNames = ['日', '月', '火', '水', '木', '金', '土'];
 
       let html = dayNames.map(n => `<div class="cal-day-name">${n}</div>`).join('');
-
-      // leading empty cells
       for (let i = 0; i < firstDay; i++) html += '<div class="cal-day empty"></div>';
 
       for (let d = 1; d <= lastDay; d++) {
@@ -365,20 +461,15 @@
       const records = state.habits[currentHabit].records;
       const total   = Object.values(records).filter(Boolean).length;
 
-      // consecutive streak (counting from today backwards)
       let streak = 0;
       const now = new Date();
       for (let i = 0; i < 730; i++) {
         const d = new Date(now);
         d.setDate(d.getDate() - i);
-        if (records[dateKey(d.getFullYear(), d.getMonth(), d.getDate())]) {
-          streak++;
-        } else {
-          break;
-        }
+        if (records[dateKey(d.getFullYear(), d.getMonth(), d.getDate())]) streak++;
+        else break;
       }
 
-      // this month count
       const prefix     = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
       const monthCount = Object.entries(records).filter(([k, v]) => v && k.startsWith(prefix)).length;
 
@@ -414,14 +505,14 @@
         records[key] = true;
         showToast('記録しました ✓');
       }
-      saveState();
+      scheduleSave();
       render();
     }
 
     document.getElementById('habitName').addEventListener('change', e => {
       const val = e.target.value.trim();
       state.habits[currentHabit].name = val || `習慣${currentHabit + 1}`;
-      saveState();
+      scheduleSave();
       renderTabs();
     });
 
@@ -440,14 +531,10 @@
     document.getElementById('exportBtn').onclick = exportCSV;
 
     function exportCSV() {
-      // Collect all recorded dates across all habits
       const allDates = new Set();
       state.habits.forEach(h => Object.keys(h.records).forEach(k => allDates.add(k)));
 
-      if (allDates.size === 0) {
-        showToast('記録がまだありません');
-        return;
-      }
+      if (allDates.size === 0) { showToast('記録がまだありません'); return; }
 
       const headers = ['日付', ...state.habits.map(h => h.name)];
       const rows    = [...allDates].sort().map(date => [
@@ -459,7 +546,7 @@
       const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
       const url  = URL.createObjectURL(blob);
       const a    = document.createElement('a');
-      a.href     = url;
+      a.href = url;
       a.download = `habit-records-${new Date().toISOString().slice(0, 10)}.csv`;
       document.body.appendChild(a);
       a.click();
@@ -468,7 +555,11 @@
       showToast('エクスポートしました 📥');
     }
 
-    // ── Toast ──────────────────────────────────────────────
+    // ── Helpers ────────────────────────────────────────────
+    function dateKey(y, m, d) {
+      return `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    }
+
     let toastTimer;
     function showToast(msg) {
       const el = document.getElementById('toast');
@@ -478,13 +569,18 @@
       toastTimer = setTimeout(() => el.classList.remove('show'), 1800);
     }
 
-    // ── Util ───────────────────────────────────────────────
     function esc(s) {
       return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
 
     // ── Init ───────────────────────────────────────────────
-    render();
+    async function init() {
+      state = await loadState();
+      document.getElementById('loadingOverlay').classList.add('hidden');
+      render();
+    }
+
+    init();
   </script>
 </body>
 </html>

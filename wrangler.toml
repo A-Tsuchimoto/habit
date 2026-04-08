@@ -1,0 +1,11 @@
+name = "habit"
+pages_build_output_dir = "."
+
+# ローカル開発用: wrangler pages dev . --kv HABIT_DATA
+# 本番用: Cloudflare Dashboard > Pages > Settings > Functions >
+#          KV namespace bindings で HABIT_DATA を紐づける
+
+[[kv_namespaces]]
+binding = "HABIT_DATA"
+id = "your-kv-namespace-id-here"
+preview_id = "your-preview-kv-namespace-id-here"
