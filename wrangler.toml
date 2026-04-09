@@ -8,9 +8,6 @@ main = "worker.js"
 [assets]
 directory = "."
 
-# KV Namespace を作成したら下記のコメントを外して ID を入れる
-# npx wrangler kv namespace create HABIT_DATA  ← これを実行すると ID が得られる
-#
-# [[kv_namespaces]]
-# binding = "HABIT_DATA"
-# id = "ここに実際のKV Namespace IDを入れる"
+[[kv_namespaces]]
+binding = "HABIT_DATA"
+id = "82dddfc9877941e7886a0ac7dbf6a941"
