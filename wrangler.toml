@@ -8,7 +8,9 @@ main = "worker.js"
 [assets]
 directory = "."
 
-[[kv_namespaces]]
-binding = "HABIT_DATA"
-id = "your-kv-namespace-id-here"
-preview_id = "your-preview-kv-namespace-id-here"
+# KV Namespace を作成したら下記のコメントを外して ID を入れる
+# npx wrangler kv namespace create HABIT_DATA  ← これを実行すると ID が得られる
+#
+# [[kv_namespaces]]
+# binding = "HABIT_DATA"
+# id = "ここに実際のKV Namespace IDを入れる"

@@ -15,6 +15,11 @@ export default {
         return new Response(null, { headers: CORS });
       }
 
+      if (!env.HABIT_DATA) {
+        // KV Namespace 未設定 → フロントエンドが localStorage にフォールバック
+        return Response.json(null, { status: 503, headers: CORS });
+      }
+
       if (request.method === 'GET') {
         const data = await env.HABIT_DATA.get(KEY, { type: 'json' });
         return Response.json(data ?? null, { headers: CORS });
