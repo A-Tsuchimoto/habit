@@ -1,9 +1,12 @@
 name = "habit"
-pages_build_output_dir = "."
+compatibility_date = "2026-04-09"
+main = "worker.js"
 
-# ローカル開発用: wrangler pages dev . --kv HABIT_DATA
-# 本番用: Cloudflare Dashboard > Pages > Settings > Functions >
-#          KV namespace bindings で HABIT_DATA を紐づける
+# ローカル開発: npx wrangler dev
+# 本番デプロイ: npx wrangler deploy
+
+[assets]
+directory = "."
 
 [[kv_namespaces]]
 binding = "HABIT_DATA"
