@@ -291,6 +291,15 @@
     }
 
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ── Version ── */
+    .version {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 0.7rem;
+      color: #cbd5e1;
+      letter-spacing: 0.04em;
+    }
   </style>
 </head>
 <body>
@@ -325,11 +334,17 @@
     <div class="stats" id="stats"></div>
 
     <button class="btn-export" id="exportBtn">📥 記録を CSV でエクスポート</button>
+
+    <div class="version" id="version"></div>
   </div>
 
   <div class="toast" id="toast"></div>
 
   <script>
+    // ── Version ────────────────────────────────────────────
+    const VERSION = 'v1.0.2';
+    document.getElementById('version').textContent = VERSION;
+
     // ── Config ─────────────────────────────────────────────
     const API_URL     = '/api/data';
     const STORAGE_KEY = 'habit-tracker-v1';  // localStorage fallback / cache
